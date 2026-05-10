@@ -6,19 +6,13 @@ namespace NotificationSystem
     {
         static void Main(string[] args)
         {
-            NotificationService service = new NotificationService();
+            NotificationFacade notificationFacade = new NotificationFacade();
 
-            service.SendNotification(new EmailNotificationFactory(),
-                "Merhaba, sistem kaydınız oluşturuldu.",
-                "bilal@soft.com");
-
-            service.SendNotification(new SmsNotificationFactory(),
-                "Doğrulama kodunuz: 1234",
-                "05550000000");
-
-            service.SendNotification(new PushNotificationFactory(),
-                "Yeni bir bildiriminiz var.",
-                "BilalCan");
+            notificationFacade.SendUserRegistrationNotifications(
+                "bilal@soft.com",
+                "05550000000",
+                "BilalCan"
+            );
 
             Console.ReadLine();
         }
@@ -31,7 +25,6 @@ namespace NotificationSystem
 
     class EmailNotification : INotification
     {
-      
         public void Send(string message, string receiver)
         {
             Console.WriteLine("E-posta bildirimi gönderiliyor...");
@@ -54,8 +47,6 @@ namespace NotificationSystem
 
     // Dışarıdan geldiğini düşündüğümüz SMS sağlayıcısı.
     // Bu sınıf bizim INotification yapımıza doğrudan uymuyor.
-    
-    
     class ExternalSmsProvider
     {
         public void SendSmsMessage(string phoneNumber, string text)
@@ -69,8 +60,6 @@ namespace NotificationSystem
 
     // Adapter Pattern
     // ExternalSmsProvider sınıfını INotification yapısına uyumlu hale getirir.
-   
-    
     class SmsProviderAdapter : INotification
     {
         private readonly ExternalSmsProvider _externalSmsProvider;
@@ -86,8 +75,6 @@ namespace NotificationSystem
         }
     }
 
-    
-    
     abstract class NotificationFactory
     {
         public abstract INotification CreateNotification();
@@ -101,9 +88,6 @@ namespace NotificationSystem
         }
     }
 
-    
-    
-    
     class SmsNotificationFactory : NotificationFactory
     {
         public override INotification CreateNotification()
@@ -115,7 +99,6 @@ namespace NotificationSystem
 
     class PushNotificationFactory : NotificationFactory
     {
-      
         public override INotification CreateNotification()
         {
             return new PushNotification();
@@ -126,12 +109,43 @@ namespace NotificationSystem
     {
         public void SendNotification(NotificationFactory factory, string message, string receiver)
         {
-
             INotification notification = factory.CreateNotification();
-        
             notification.Send(message, receiver);
 
             Console.WriteLine("-----------------------------");
+        }
+    }
+
+    // Facade Pattern
+    // Bildirim gönderme sürecini Program.cs tarafında daha sade kullanmak için oluşturuldu.
+    class NotificationFacade
+    {
+        private readonly NotificationService _notificationService;
+
+        public NotificationFacade()
+        {
+            _notificationService = new NotificationService();
+        }
+
+        public void SendUserRegistrationNotifications(string email, string phoneNumber, string userName)
+        {
+            _notificationService.SendNotification(
+                new EmailNotificationFactory(),
+                "Merhaba, sistem kaydınız oluşturuldu.",
+                email
+            );
+
+            _notificationService.SendNotification(
+                new SmsNotificationFactory(),
+                "Doğrulama kodunuz: 1234",
+                phoneNumber
+            );
+
+            _notificationService.SendNotification(
+                new PushNotificationFactory(),
+                "Yeni bir bildiriminiz var.",
+                userName
+            );
         }
     }
 }
