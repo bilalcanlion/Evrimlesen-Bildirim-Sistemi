@@ -6,19 +6,13 @@ namespace NotificationSystem
     {
         static void Main(string[] args)
         {
-            NotificationService service = new NotificationService();
+            NotificationFacade notificationFacade = new NotificationFacade();
 
-            service.SendNotification(new EmailNotificationFactory(),
-                "Merhaba, sistem kaydınız oluşturuldu.",
-                "bilal@example.com");
-
-            service.SendNotification(new SmsNotificationFactory(),
-                "Doğrulama kodunuz: 1234",
-                "05550000000");
-
-            service.SendNotification(new PushNotificationFactory(),
-                "Yeni bir bildiriminiz var.",
-                "BilalCan");
+            notificationFacade.SendUserRegistrationNotifications(
+                "bilal@soft.com",
+                "05550000000",
+                "BilalCan"
+            );
 
             Console.ReadLine();
         }
@@ -40,17 +34,6 @@ namespace NotificationSystem
         }
     }
 
-    class SmsNotification : INotification
-    {
-        public void Send(string message, string receiver)
-        {
-            Console.WriteLine("SMS bildirimi gönderiliyor...");
-            Console.WriteLine("Telefon numarası: " + receiver);
-            Console.WriteLine("Mesaj: " + message);
-            Console.WriteLine("SMS gönderildi.");
-        }
-    }
-
     class PushNotification : INotification
     {
         public void Send(string message, string receiver)
@@ -59,6 +42,36 @@ namespace NotificationSystem
             Console.WriteLine("Kullanıcı adı: " + receiver);
             Console.WriteLine("Mesaj: " + message);
             Console.WriteLine("Push bildirimi gönderildi.");
+        }
+    }
+
+    // Dışarıdan geldiğini düşündüğümüz SMS sağlayıcısı.
+    // Bu sınıf bizim INotification yapımıza doğrudan uymuyor.
+    class ExternalSmsProvider
+    {
+        public void SendSmsMessage(string phoneNumber, string text)
+        {
+            Console.WriteLine("Harici SMS sağlayıcısı kullanılıyor...");
+            Console.WriteLine("Telefon numarası: " + phoneNumber);
+            Console.WriteLine("SMS içeriği: " + text);
+            Console.WriteLine("Harici servis üzerinden SMS gönderildi.");
+        }
+    }
+
+    // Adapter Pattern
+    // ExternalSmsProvider sınıfını INotification yapısına uyumlu hale getirir.
+    class SmsProviderAdapter : INotification
+    {
+        private readonly ExternalSmsProvider _externalSmsProvider;
+
+        public SmsProviderAdapter(ExternalSmsProvider externalSmsProvider)
+        {
+            _externalSmsProvider = externalSmsProvider;
+        }
+
+        public void Send(string message, string receiver)
+        {
+            _externalSmsProvider.SendSmsMessage(receiver, message);
         }
     }
 
@@ -79,7 +92,8 @@ namespace NotificationSystem
     {
         public override INotification CreateNotification()
         {
-            return new SmsNotification();
+            ExternalSmsProvider externalSmsProvider = new ExternalSmsProvider();
+            return new SmsProviderAdapter(externalSmsProvider);
         }
     }
 
@@ -99,6 +113,39 @@ namespace NotificationSystem
             notification.Send(message, receiver);
 
             Console.WriteLine("-----------------------------");
+        }
+    }
+
+    // Facade Pattern
+    // Bildirim gönderme sürecini Program.cs tarafında daha sade kullanmak için oluşturuldu.
+    class NotificationFacade
+    {
+        private readonly NotificationService _notificationService;
+
+        public NotificationFacade()
+        {
+            _notificationService = new NotificationService();
+        }
+
+        public void SendUserRegistrationNotifications(string email, string phoneNumber, string userName)
+        {
+            _notificationService.SendNotification(
+                new EmailNotificationFactory(),
+                "Merhaba, sistem kaydınız oluşturuldu.",
+                email
+            );
+
+            _notificationService.SendNotification(
+                new SmsNotificationFactory(),
+                "Doğrulama kodunuz: 1234",
+                phoneNumber
+            );
+
+            _notificationService.SendNotification(
+                new PushNotificationFactory(),
+                "Yeni bir bildiriminiz var.",
+                userName
+            );
         }
     }
 }
