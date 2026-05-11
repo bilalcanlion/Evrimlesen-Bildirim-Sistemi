@@ -162,3 +162,70 @@ notificationFacade.SendUserRegistrationNotifications(
     "05550000000",
     "BilalCan"
 );
+
+---
+
+## Faz 3 - Strategy Pattern
+
+### Kullanıldığı Yer
+
+Strategy Pattern, bildirimlerin nasıl gönderileceğini ayrı davranış sınıflarına ayırmak için kullanılmıştır.
+
+Projede bu yapı şu sınıflar üzerinden uygulanmıştır:
+
+- INotificationSendStrategy
+- NormalSendStrategy
+- PrioritySendStrategy
+- SilentSendStrategy
+
+Bu sınıflar bildirimin gönderim şeklini belirler. Örneğin bir bildirim normal gönderilebilir, öncelikli gönderilebilir veya sessiz şekilde gönderilebilir.
+
+### Neden Kullanıldı?
+
+Başlangıçta bildirim gönderme davranışı tek bir yöntemle ilerliyordu. Ancak sistem büyüdükçe farklı gönderim davranışlarına ihtiyaç duyulabilir.
+
+Örneğin bazı bildirimler normal şekilde gönderilirken, bazı bildirimlerin öncelikli ya da sessiz şekilde gönderilmesi gerekebilir. Bu davranışları if-else bloklarıyla servis sınıfının içine yazmak kodu karmaşık hale getirebilirdi.
+
+Strategy Pattern sayesinde her gönderim davranışı ayrı bir sınıfa taşındı.
+
+### Ne Kazandırdı?
+
+Bu yapı sayesinde bildirim gönderme davranışları daha esnek hale geldi.
+
+Sisteme yeni bir gönderim davranışı eklemek istediğimde mevcut kodu değiştirmek yerine yeni bir strategy sınıfı ekleyebilirim.
+
+Örneğin SilentSendStrategy sınıfı eklenerek sessiz gönderim davranışı sisteme dahil edilmiştir. Bu durum Açık/Kapalı Prensibine uygundur.
+
+---
+
+## Faz 3 - Observer Pattern
+
+### Kullanıldığı Yer
+
+Observer Pattern, bildirim gönderildikten sonra otomatik çalışacak işlemleri yönetmek için kullanılmıştır.
+
+Projede bu yapı şu sınıflar üzerinden uygulanmıştır:
+
+- NotificationEvent
+-INotificationObserver
+- LogObserver
+- ReportObserver
+- INotificationSubject
+
+NotificationService sınıfı bildirim gönderildikten sonra observer sınıflarına haber verir. Böylece loglama ve raporlama işlemleri otomatik olarak çalışır.
+
+### Neden Kullanıldı?
+
+Bildirim gönderildikten sonra sadece mesajın gönderilmesi yeterli olmayabilir. Sistemde log tutma, rapor oluşturma veya farklı sistemlere bilgi gönderme gibi ek işlemler gerekebilir.
+
+Bu işlemleri doğrudan NotificationService içine yazmak sınıfın sorumluluğunu artırırdı. Ayrıca yeni bir işlem eklemek için mevcut servis kodunu değiştirmek gerekebilirdi.
+
+Observer Pattern sayesinde bildirim sonrası işlemler ayrı observer sınıflarına taşındı.
+
+### Ne Kazandırdı?
+
+Bu yapı sayesinde bildirim gönderildikten sonra farklı işlemler otomatik tetiklenebilir hale geldi.
+
+Örneğin LogObserver bildirim gönderim bilgisini kaydederken, ReportObserver raporlama işlemini yapmaktadır.
+
+İleride yeni bir observer eklemek istersem, örneğin AdminObserver, mevcut bildirim gönderme mantığını değiştirmeden yeni bir sınıf ekleyebilirim. Bu da sistemin genişletilebilirliğini artırır.
