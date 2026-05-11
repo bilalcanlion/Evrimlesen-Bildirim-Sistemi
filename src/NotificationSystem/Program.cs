@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace NotificationSystem
 {
@@ -105,7 +106,6 @@ namespace NotificationSystem
     }
 
     // Strategy Pattern
-    // Bildirimin nasıl gönderileceğini ayrı sınıflara ayırmak için kullanıldı.
     interface INotificationSendStrategy
     {
         void Send(INotification notification, string message, string receiver);
@@ -131,8 +131,8 @@ namespace NotificationSystem
     }
 
     // OCP örneği:
-    // Yeni bir gönderim davranışı eklemek için NotificationService sınıfı değiştirilmedi.
-    // Sadece yeni bir Strategy sınıfı eklendi.
+    // Yeni bir gönderim davranışı eklemek için NotificationService sınıfını değiştirmeye gerek kalmadan
+    // yeni bir strategy sınıfı eklenebilir.
     class SilentSendStrategy : INotificationSendStrategy
     {
         public void Send(INotification notification, string message, string receiver)
@@ -143,8 +143,81 @@ namespace NotificationSystem
         }
     }
 
-    class NotificationService
+    // Observer Pattern için olay bilgisi
+    class NotificationEvent
     {
+        public string NotificationType { get; set; }
+        public string Message { get; set; }
+        public string Receiver { get; set; }
+        public string StrategyName { get; set; }
+
+        public NotificationEvent(string notificationType, string message, string receiver, string strategyName)
+        {
+            NotificationType = notificationType;
+            Message = message;
+            Receiver = receiver;
+            StrategyName = strategyName;
+        }
+    }
+
+    interface INotificationObserver
+    {
+        void Update(NotificationEvent notificationEvent);
+    }
+
+    class LogObserver : INotificationObserver
+    {
+        public void Update(NotificationEvent notificationEvent)
+        {
+            Console.WriteLine("[LOG] Bildirim gönderildi.");
+            Console.WriteLine("[LOG] Tür: " + notificationEvent.NotificationType);
+            Console.WriteLine("[LOG] Alıcı: " + notificationEvent.Receiver);
+        }
+    }
+
+    class ReportObserver : INotificationObserver
+    {
+        public void Update(NotificationEvent notificationEvent)
+        {
+            Console.WriteLine("[RAPOR] Bildirim rapor sistemine eklendi.");
+            Console.WriteLine("[RAPOR] Kullanılan strateji: " + notificationEvent.StrategyName);
+        }
+    }
+
+    interface INotificationSubject
+    {
+        void Attach(INotificationObserver observer);
+        void Detach(INotificationObserver observer);
+        void Notify(NotificationEvent notificationEvent);
+    }
+
+    class NotificationService : INotificationSubject
+    {
+        private readonly List<INotificationObserver> _observers;
+
+        public NotificationService()
+        {
+            _observers = new List<INotificationObserver>();
+        }
+
+        public void Attach(INotificationObserver observer)
+        {
+            _observers.Add(observer);
+        }
+
+        public void Detach(INotificationObserver observer)
+        {
+            _observers.Remove(observer);
+        }
+
+        public void Notify(NotificationEvent notificationEvent)
+        {
+            foreach (INotificationObserver observer in _observers)
+            {
+                observer.Update(notificationEvent);
+            }
+        }
+
         public void SendNotification(
             NotificationFactory factory,
             string message,
@@ -154,6 +227,15 @@ namespace NotificationSystem
             INotification notification = factory.CreateNotification();
 
             sendStrategy.Send(notification, message, receiver);
+
+            NotificationEvent notificationEvent = new NotificationEvent(
+                notification.GetType().Name,
+                message,
+                receiver,
+                sendStrategy.GetType().Name
+            );
+
+            Notify(notificationEvent);
 
             Console.WriteLine("-----------------------------");
         }
@@ -167,6 +249,11 @@ namespace NotificationSystem
         public NotificationFacade()
         {
             _notificationService = new NotificationService();
+
+            // Observer Pattern
+            // Bildirim gönderildikten sonra loglama ve raporlama otomatik çalışır.
+            _notificationService.Attach(new LogObserver());
+            _notificationService.Attach(new ReportObserver());
         }
 
         public void SendUserRegistrationNotifications(string email, string phoneNumber, string userName)
