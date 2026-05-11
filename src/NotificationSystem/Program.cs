@@ -14,6 +14,8 @@ namespace NotificationSystem
                 "BilalCan"
             );
 
+            notificationFacade.SendSilentSystemNotification("BilalCan");
+
             Console.ReadLine();
         }
     }
@@ -45,8 +47,6 @@ namespace NotificationSystem
         }
     }
 
-    // Dışarıdan geldiğini düşündüğümüz SMS sağlayıcısı.
-    // Bu sınıf bizim INotification yapımıza doğrudan uymuyor.
     class ExternalSmsProvider
     {
         public void SendSmsMessage(string phoneNumber, string text)
@@ -59,7 +59,6 @@ namespace NotificationSystem
     }
 
     // Adapter Pattern
-    // ExternalSmsProvider sınıfını INotification yapısına uyumlu hale getirir.
     class SmsProviderAdapter : INotification
     {
         private readonly ExternalSmsProvider _externalSmsProvider;
@@ -105,19 +104,62 @@ namespace NotificationSystem
         }
     }
 
+    // Strategy Pattern
+    // Bildirimin nasıl gönderileceğini ayrı sınıflara ayırmak için kullanıldı.
+    interface INotificationSendStrategy
+    {
+        void Send(INotification notification, string message, string receiver);
+    }
+
+    class NormalSendStrategy : INotificationSendStrategy
+    {
+        public void Send(INotification notification, string message, string receiver)
+        {
+            Console.WriteLine("Normal gönderim stratejisi kullanılıyor.");
+            notification.Send(message, receiver);
+        }
+    }
+
+    class PrioritySendStrategy : INotificationSendStrategy
+    {
+        public void Send(INotification notification, string message, string receiver)
+        {
+            Console.WriteLine("Öncelikli gönderim stratejisi kullanılıyor.");
+            Console.WriteLine("Bildirim öncelikli olarak işleme alındı.");
+            notification.Send(message, receiver);
+        }
+    }
+
+    // OCP örneği:
+    // Yeni bir gönderim davranışı eklemek için NotificationService sınıfı değiştirilmedi.
+    // Sadece yeni bir Strategy sınıfı eklendi.
+    class SilentSendStrategy : INotificationSendStrategy
+    {
+        public void Send(INotification notification, string message, string receiver)
+        {
+            Console.WriteLine("Sessiz gönderim stratejisi kullanılıyor.");
+            Console.WriteLine("Kullanıcıya rahatsız edici sesli uyarı gösterilmeden bildirim gönderiliyor.");
+            notification.Send(message, receiver);
+        }
+    }
+
     class NotificationService
     {
-        public void SendNotification(NotificationFactory factory, string message, string receiver)
+        public void SendNotification(
+            NotificationFactory factory,
+            string message,
+            string receiver,
+            INotificationSendStrategy sendStrategy)
         {
             INotification notification = factory.CreateNotification();
-            notification.Send(message, receiver);
+
+            sendStrategy.Send(notification, message, receiver);
 
             Console.WriteLine("-----------------------------");
         }
     }
 
     // Facade Pattern
-    // Bildirim gönderme sürecini Program.cs tarafında daha sade kullanmak için oluşturuldu.
     class NotificationFacade
     {
         private readonly NotificationService _notificationService;
@@ -132,19 +174,32 @@ namespace NotificationSystem
             _notificationService.SendNotification(
                 new EmailNotificationFactory(),
                 "Merhaba, sistem kaydınız oluşturuldu.",
-                email
+                email,
+                new NormalSendStrategy()
             );
 
             _notificationService.SendNotification(
                 new SmsNotificationFactory(),
                 "Doğrulama kodunuz: 1234",
-                phoneNumber
+                phoneNumber,
+                new NormalSendStrategy()
             );
 
             _notificationService.SendNotification(
                 new PushNotificationFactory(),
                 "Yeni bir bildiriminiz var.",
-                userName
+                userName,
+                new PrioritySendStrategy()
+            );
+        }
+
+        public void SendSilentSystemNotification(string userName)
+        {
+            _notificationService.SendNotification(
+                new PushNotificationFactory(),
+                "Sistem bakım bildirimi: Bu gece kısa süreli bakım yapılacaktır.",
+                userName,
+                new SilentSendStrategy()
             );
         }
     }
