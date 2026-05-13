@@ -1,0 +1,29 @@
+name: .NET Build
+
+on:
+  push:
+    branches:
+      - main
+      - phase-3
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository kodunu al
+        uses: actions/checkout@v4
+
+      - name: .NET SDK kurulumu
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Bağımlılıkları yükle
+        run: dotnet restore src/NotificationSystem/NotificationSystem.csproj
+
+      - name: Projeyi derle
+        run: dotnet build src/NotificationSystem/NotificationSystem.csproj --configuration Release --no-restore
