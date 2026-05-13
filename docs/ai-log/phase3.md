@@ -18,6 +18,8 @@ Bu fazda projeye iki tane Behavioral Design Pattern eklendi:
 
 Faz 3'te amaç sistemi gerçekten genişletilebilir hale getirmekti. Yani yeni bir davranış eklemek istediğimde mevcut kodu sürekli değiştirmek zorunda kalmamam gerekiyordu.
 
+
+
 Bu nedenle Strategy Pattern ile bildirim gönderme davranışlarını ayrı sınıflara ayırdım. Observer Pattern ile de bildirim gönderildikten sonra loglama ve raporlama gibi işlemlerin otomatik çalışmasını sağladım.
 
 
@@ -34,10 +36,6 @@ Bu süreçte AI bana özellikle Strategy, Observer ve OCP ilişkisini daha net k
 
 
 
-\---
-
-
-
 \## 1. Tur: Pattern Seçimi ve Planlama
 
 
@@ -50,17 +48,19 @@ AI'a genel olarak şu soruyu sordum:
 
 
 
-\-Bu proje için Strategy Pattern ve Observer Pattern uygun olur mu? Strategy hangi problemi çözer, Observer hangi problemi çözer, OCP'yi hangi noktada gösterebilirim?
+> Bu proje için Strategy Pattern ve Observer Pattern uygun olur mu? Strategy hangi problemi çözer, Observer hangi problemi çözer, OCP'yi hangi noktada gösterebilirim?
 
 
 
-Gemini, Strategy ve Observer patternlerinin bildirim sistemi için uygun olduğunu belirtti. Strategy Pattern'in bildirimlerin nasıl gönderileceğini farklı davranışlara ayırmak için kullanılabileceğini söyledi. Örneğin normal gönderim, öncelikli gönderim ve sessiz gönderim gibi davranışların ayrı sınıflara alınabileceğini belirtti.
+Gemini, Strategy ve Observer patternlerinin bildirim sistemi için uygun olduğunu belirtti.
+
+
+
+Strategy Pattern'in bildirimlerin nasıl gönderileceğini farklı davranışlara ayırmak için kullanılabileceğini söyledi. Örneğin normal gönderim, öncelikli gönderim ve sessiz gönderim gibi davranışların ayrı sınıflara alınabileceğini belirtti.
+
+
 
 Observer Pattern için ise bildirim gönderildikten sonra loglama, raporlama veya başka sistemlerin otomatik çalıştırılabileceğini söyledi. Bu yaklaşımın bildirim sonrası olayları ana gönderim kodundan ayıracağını belirtti.
-
-
-
-\---
 
 
 
@@ -80,7 +80,7 @@ AI'a şu konularda değerlendirme yapmasını istedim:
 
 \- Observer Pattern doğru uygulanmış mı?
 
-\- NotificationService sınıfının sorumluluğu fazla mı arttı?
+\- `NotificationService` sınıfının sorumluluğu fazla mı arttı?
 
 \- Kod öğrenci ödevi seviyesinde sade mi?
 
@@ -90,11 +90,15 @@ AI'a şu konularda değerlendirme yapmasını istedim:
 
 
 
-Gemini, Strategy Pattern kullanımını doğru buldu. INotificationSendStrategy arayüzü ile gönderim davranışlarının ayrılmasının pattern mantığına uygun olduğunu söyledi. NormalSendStrategy, PrioritySendStrategy ve SilentSendStrategy sınıflarının bu yapı için doğru örnekler olduğunu belirtti.Observer Pattern için de NotificationService sınıfının subject,LogObserver ve ReportObserver sınıflarının observer rolünü üstlendiğini söyledi. Ayrıca NotificationEvent sınıfı ile olay bilgisinin ayrı bir nesne içinde taşınmasını olumlu buldu.Gemini, NotificationService sınıfının sorumluluğunun biraz arttığını söyledi. Çünkü bu sınıf hem bildirim gönderiyor hem de observer listesini yönetiyor. Ancak öğrenci projesi seviyesinde bunun kabul edilebilir olduğunu belirtti. Daha büyük projelerde bu yapının ayrı bir temel sınıfa veya yardımcı sınıfa taşınabileceğini söyledi.
+Gemini, Strategy Pattern kullanımını doğru buldu. `INotificationSendStrategy` arayüzü ile gönderim davranışlarının ayrılmasının pattern mantığına uygun olduğunu söyledi. `NormalSendStrategy`, `PrioritySendStrategy` ve `SilentSendStrategy` sınıflarının bu yapı için doğru örnekler olduğunu belirtti.
 
 
 
-\---
+Observer Pattern için de `NotificationService` sınıfının subject, `LogObserver` ve `ReportObserver` sınıflarının observer rolünü üstlendiğini söyledi. Ayrıca `NotificationEvent` sınıfı ile olay bilgisinin ayrı bir nesne içinde taşınmasını olumlu buldu.
+
+
+
+Gemini, `NotificationService` sınıfının sorumluluğunun biraz arttığını söyledi. Çünkü bu sınıf hem bildirim gönderiyor hem de observer listesini yönetiyor. Ancak öğrenci projesi seviyesinde bunun kabul edilebilir olduğunu belirtti. Daha büyük projelerde bu yapının ayrı bir temel sınıfa veya yardımcı sınıfa taşınabileceğini söyledi.
 
 
 
@@ -102,7 +106,7 @@ Gemini, Strategy Pattern kullanımını doğru buldu. INotificationSendStrategy 
 
 
 
-Daha sonra Gemini'ye Açık/Kapalı Prensibini doğru gösterip göstermediğimi sordum. Özellikle SilentSendStrategy sınıfının OCP için yeterli bir örnek olup olmadığını kontrol ettirdim.
+Daha sonra Gemini'ye Açık/Kapalı Prensibini doğru gösterip göstermediğimi sordum. Özellikle `SilentSendStrategy` sınıfının OCP için yeterli bir örnek olup olmadığını kontrol ettirdim.
 
 
 
@@ -110,9 +114,11 @@ AI'a şu soruyu sordum:
 
 
 
-\-SilentSendStrategy sınıfını yeni bir gönderim davranışı olarak ekledim. Bu davranış eklenirken mevcut bildirim sınıflarını değiştirmedim. Bu OCP için yeterli ve doğru bir örnek mi? Observer tarafında da OCP gösterilebilir mi?
+> SilentSendStrategy sınıfını yeni bir gönderim davranışı olarak ekledim. Bu davranış eklenirken mevcut bildirim sınıflarını değiştirmedim. Bu OCP için yeterli ve doğru bir örnek mi? Observer tarafında da OCP gösterilebilir mi?
 
-Gemini, SilentSendStrategy örneğinin OCP için doğru ve yeterli olduğunu söyledi. Çünkü yeni bir gönderim davranışı eklenirken mevcut NotificationService yapısını if-else ile büyütmek yerine yeni bir strategy sınıfı eklenmiş oldu.
+
+
+Gemini, `SilentSendStrategy` örneğinin OCP için doğru ve yeterli olduğunu söyledi. Çünkü yeni bir gönderim davranışı eklenirken mevcut `NotificationService` yapısını if-else ile büyütmek yerine yeni bir strategy sınıfı eklenmiş oldu.
 
 
 
@@ -120,15 +126,15 @@ Bunu şu şekilde yorumladım:
 
 
 
-\- Sistem yeni davranışlara açık, fakat mevcut çalışan kodu sürekli değiştirmeye kapalıdır.
+> Sistem yeni davranışlara açık, fakat mevcut çalışan kodu sürekli değiştirmeye kapalıdır.
 
 
 
-Gemini ayrıca Observer tarafında da OCP'nin gösterilebileceğini söyledi. Örneğin sisteme ileride SlackObserver veya AdminObserver gibi yeni bir observer eklenirse, mevcut bildirim gönderme motorunu değiştirmeden yeni bir olay dinleyici eklenmiş olur.Bu bilgi mantıklıydı; ancak projede örnek olarak Strategy tarafındaki SilentSendStrategy üzerinden OCP'yi daha net göstermeyi tercih ettim.
+Gemini ayrıca Observer tarafında da OCP'nin gösterilebileceğini söyledi. Örneğin sisteme ileride `SlackObserver` veya `AdminObserver` gibi yeni bir observer eklenirse, mevcut bildirim gönderme motorunu değiştirmeden yeni bir olay dinleyici eklenmiş olur.
 
 
 
-\---
+Bu bilgi mantıklıydı; ancak projede örnek olarak Strategy tarafındaki `SilentSendStrategy` üzerinden OCP'yi daha net göstermeyi tercih ettim.
 
 
 
@@ -158,7 +164,7 @@ Gemini, README içinde her patternin hangi problemi çözdüğünü kısa şekil
 
 
 
-GitHub Actions için ise basit bir pipeline'ın öğrenci ödevi için yeterli olduğunu söyledi. dotnet restore ve dotnet build komutlarını çalıştıran bir CI yapısının, projenin derlenebilir olduğunu göstermek için yeterli olacağını belirtti.
+GitHub Actions için ise basit bir pipeline'ın öğrenci ödevi için yeterli olduğunu söyledi. `dotnet restore` ve `dotnet build` komutlarını çalıştıran bir CI yapısının, projenin derlenebilir olduğunu göstermek için yeterli olacağını belirtti.
 
 
 
@@ -174,13 +180,13 @@ Bu fazda Strategy Pattern için aşağıdaki yapıları oluşturdum:
 
 
 
-\- INotificationSendStrategy
+\- `INotificationSendStrategy`
 
-\- NormalSendStrategy
+\- `NormalSendStrategy`
 
-\- PrioritySendStrategy
+\- `PrioritySendStrategy`
 
-\- SilentSendStrategy
+\- `SilentSendStrategy`
 
 
 
@@ -192,19 +198,19 @@ Observer Pattern için ise şu yapıları oluşturdum:
 
 
 
-\- NotificationEvent
+\- `NotificationEvent`
 
-\- INotificationObserver
+\- `INotificationObserver`
 
-\- LogObserver
+\- `LogObserver`
 
-\- ReportObserver
+\- `ReportObserver`
 
-\- INotificationSubject
+\- `INotificationSubject`
 
 
 
-NotificationService sınıfı bildirim gönderildikten sonra observer sınıflarına haber vermektedir. Böylece loglama ve raporlama işlemleri otomatik çalışmaktadır.
+`NotificationService` sınıfı bildirim gönderildikten sonra observer sınıflarına haber vermektedir. Böylece loglama ve raporlama işlemleri otomatik çalışmaktadır.
 
 
 
@@ -216,7 +222,7 @@ Açık/Kapalı Prensibini Strategy Pattern üzerinden gösterdim.
 
 
 
-Projeye SilentSendStrategy adında yeni bir gönderim davranışı ekledim. Bu davranış eklenirken mevcut bildirim sınıflarını baştan yazmaya gerek kalmadı. Gönderim davranışı ayrı bir sınıf olarak eklendi.
+Projeye `SilentSendStrategy` adında yeni bir gönderim davranışı ekledim. Bu davranış eklenirken mevcut bildirim sınıflarını baştan yazmaya gerek kalmadı. Gönderim davranışı ayrı bir sınıf olarak eklendi.
 
 
 
@@ -224,7 +230,7 @@ Bu durum şunu gösterir:
 
 
 
-\- Sistem yeni davranışlara açık, fakat mevcut kodu sürekli değiştirmeye kapalıdır.
+> Sistem yeni davranışlara açık, fakat mevcut kodu sürekli değiştirmeye kapalıdır.
 
 
 
@@ -232,7 +238,7 @@ Yani yeni bir gönderim yöntemi eklemek istediğimde mevcut yapıyı bozmak yer
 
 
 
-Observer tarafında da benzer bir genişletilebilirlik vardır. İleride sisteme yeni bir observer eklemek istersem, örneğin AdminObserver ya da SlackObserver, mevcut bildirim gönderme mantığını değiştirmeden yeni bir gözlemci sınıfı ekleyebilirim.
+Observer tarafında da benzer bir genişletilebilirlik vardır. İleride sisteme yeni bir observer eklemek istersem, örneğin `AdminObserver` ya da `SlackObserver`, mevcut bildirim gönderme mantığını değiştirmeden yeni bir gözlemci sınıfı ekleyebilirim.
 
 
 
@@ -240,7 +246,15 @@ Observer tarafında da benzer bir genişletilebilirlik vardır. İleride sisteme
 
 
 
-Gemini genel olarak doğru yönlendirme yaptı. Ancak bazı yerlerde öğrenci projesi için fazla profesyonel sayılabilecek öneriler sundu. Örneğin Dependency Injection, C# event/delegate yapısı veya daha kurumsal mimari ayrımlarından bahsetti.Bu öneriler teknik olarak yanlış değildi, fakat bu ödevde tasarım örüntülerini açıkça göstermek daha önemliydi. Bu yüzden Observer Pattern'i C# event/delegate ile değil, klasik interface tabanlı yapı ile kurdum.Ayrıca Gemini bazı cevaplarında proje ile doğrudan ilgili olmayan kişisel veya konu dışı ifadeler kullandı. Bu kısımları ödev raporuna dahil etmedim ve sadece teknik olarak gerekli olan önerileri dikkate aldım.
+Gemini genel olarak doğru yönlendirme yaptı. Ancak bazı yerlerde öğrenci projesi için fazla profesyonel sayılabilecek öneriler sundu. Örneğin Dependency Injection, C# event/delegate yapısı veya daha kurumsal mimari ayrımlarından bahsetti.
+
+
+
+Bu öneriler teknik olarak yanlış değildi, fakat bu ödevde tasarım örüntülerini açıkça göstermek daha önemliydi. Bu yüzden Observer Pattern'i C# event/delegate ile değil, klasik interface tabanlı yapı ile kurdum.
+
+
+
+Ayrıca Gemini bazı cevaplarında proje ile doğrudan ilgili olmayan kişisel veya konu dışı ifadeler kullandı. Bu kısımları ödev raporuna dahil etmedim ve sadece teknik olarak gerekli olan önerileri dikkate aldım.
 
 
 
@@ -248,7 +262,11 @@ Gemini genel olarak doğru yönlendirme yaptı. Ancak bazı yerlerde öğrenci p
 
 
 
-AI olmadan bu fazın daha uzun süreceğini düşünüyorum. Özellikle Strategy ve Observer patternlerinin projedeki yerini belirlemek, OCP'yi nerede göstereceğimi netleştirmek ve kodu fazla karmaşıklaştırmadan ilerlemek daha fazla zaman alabilirdi.AI bu fazda bana özellikle fikirleri düzenleme, patternlerin görevlerini ayırma ve raporda neyi vurgulamam gerektiğini belirleme konusunda yardımcı oldu. Yine de kodu doğrudan kopyalamak yerine, kendi proje yapımıza göre sadeleştirerek uyguladım.
+AI olmadan bu fazın daha uzun süreceğini düşünüyorum. Özellikle Strategy ve Observer patternlerinin projedeki yerini belirlemek, OCP'yi nerede göstereceğimi netleştirmek ve kodu fazla karmaşıklaştırmadan ilerlemek daha fazla zaman alabilirdi.
+
+
+
+AI bu fazda bana özellikle fikirleri düzenleme, patternlerin görevlerini ayırma ve raporda neyi vurgulamam gerektiğini belirleme konusunda yardımcı oldu. Yine de kodu doğrudan kopyalamak yerine, kendi proje yapımıza göre sadeleştirerek uyguladım.
 
 
 
@@ -257,6 +275,8 @@ AI olmadan bu fazın daha uzun süreceğini düşünüyorum. Özellikle Strategy
 
 
 Bu faz sonunda sistem daha genişletilebilir hale geldi.
+
+
 
 Strategy Pattern sayesinde bildirim gönderme davranışları ayrı sınıflara ayrıldı. Observer Pattern sayesinde bildirim sonrası loglama ve raporlama işlemleri otomatik hale getirildi.
 
