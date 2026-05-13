@@ -1,496 +1,239 @@
-# \# Evrimleşen Bildirim Sistemi
+# Evrimleşen Bildirim Sistemi
 
-# 
+## Konu Seçimi
 
-# Bu proje, Yazılım Tasarım Örüntüleri dersi kapsamında geliştirilmiş bir C# Console App projesidir. Projede temel bir bildirim sistemi adım adım geliştirilmiş ve farklı tasarım örüntüleri kullanılarak daha esnek, genişletilebilir ve yönetilebilir hale getirilmiştir.
+Seçilen konu: **A - Bildirim Sistemi**
 
-# 
+Bu konuyu seçtim çünkü bildirim sistemleri e-posta, SMS ve push gibi farklı bildirim türlerini içerdiği için tasarım örüntülerini göstermek açısından uygun bir örnektir. Başlangıçta tüm bildirim tiplerinin tek bir sınıfta yönetilmesi, if-else yapılarının büyümesi ve yeni bildirim türü eklemenin zorlaşması gibi sorunları açık şekilde göstermektedir. Bu nedenle bu proje Factory Method, Adapter, Facade, Strategy ve Observer örüntülerini aşamalı olarak uygulamak için uygun bir yapı sağlamaktadır.
 
-# Sistem; e-posta, SMS ve push bildirimi gönderebilen basit bir yapıdan başlamış, daha sonra Factory Method, Adapter, Facade, Strategy ve Observer örüntüleriyle geliştirilmiştir.
+## Proje Hakkında
 
-# 
+Bu proje, Yazılım Tasarım Örüntüleri dersi kapsamında geliştirilmiş bir **C# Console App** projesidir.
 
-# \---
+Projenin amacı, başlangıçta basit ve genişletilmesi zor olan bir bildirim sistemini tasarım örüntüleri kullanarak daha düzenli, esnek ve genişletilebilir hale getirmektir.
 
-# 
+Sistem şu bildirim türlerini desteklemektedir:
 
-# \## Projenin Amacı
+- E-posta bildirimi
+- SMS bildirimi
+- Push bildirimi
 
-# 
+Proje ilerledikçe bildirim nesnelerinin oluşturulması, dış servis uyumluluğu, bildirim gönderme süreci, gönderim davranışları ve bildirim sonrası işlemler farklı tasarım örüntüleriyle ayrılmıştır.
 
-# Bu projenin amacı, bir bildirim sistemini tasarım örüntüleri kullanarak aşamalı şekilde geliştirmektir.
+## Kullanılan Tasarım Örüntüleri
 
-# 
+| Faz | Örüntü | Kısa Açıklama |
+|---|---|---|
+| Faz 1 | Factory Method | Bildirim nesnelerinin oluşturulmasını factory sınıflarına taşır. |
+| Faz 2 | Adapter | Dış SMS sağlayıcısını mevcut `INotification` yapısına uyumlu hale getirir. |
+| Faz 2 | Facade | Bildirim gönderme sürecini daha sade bir arayüz üzerinden yönetir. |
+| Faz 3 | Strategy | Farklı bildirim gönderme davranışlarını ayrı sınıflara ayırır. |
+| Faz 3 | Observer | Bildirim sonrası loglama ve raporlama işlemlerini otomatik tetikler. |
 
-# Başlangıçta bildirim gönderme işlemleri tek bir sınıf içinde ve daha basit bir yapıyla yönetiliyordu. Daha sonra her fazda farklı tasarım problemleri ele alınarak sistem iyileştirildi.
+## Örüntülerin Projedeki Kullanımı
 
-# 
+### Factory Method
 
-# Proje sonunda sistem şu özelliklere sahip hale gelmiştir:
+Factory Method, bildirim nesnelerinin oluşturulmasını düzenlemek için kullanılmıştır.
 
-# 
+Bu yapı sayesinde `NotificationService` sınıfı, hangi bildirimin nasıl oluşturulduğunu bilmek zorunda kalmaz. E-posta, SMS ve push bildirimleri için ayrı factory sınıfları oluşturulmuştur.
 
-# \- Bildirim nesneleri daha düzenli şekilde oluşturulmaktadır.
+Kullanılan sınıflar:
 
-# \- Dış SMS servisi mevcut sisteme uyumlu hale getirilmiştir.
+- `NotificationFactory`
+- `EmailNotificationFactory`
+- `SmsNotificationFactory`
+- `PushNotificationFactory`
 
-# \- Bildirim gönderme süreci daha sade bir arayüz üzerinden yönetilmektedir.
+### Adapter
 
-# \- Farklı gönderim davranışları ayrı sınıflar halinde uygulanmıştır.
+Adapter Pattern, dışarıdan gelen SMS sağlayıcısını mevcut sisteme uyumlu hale getirmek için kullanılmıştır.
 
-# \- Bildirim gönderildikten sonra loglama ve raporlama işlemleri otomatik çalışmaktadır.
+`ExternalSmsProvider` sınıfı doğrudan `INotification` arayüzüne uymadığı için `SmsProviderAdapter` sınıfı oluşturulmuştur. Böylece dış SMS servisi mevcut bildirim sistemine zarar vermeden kullanılabilir hale gelmiştir.
 
-# \- Yeni davranış eklemek için mevcut kodu sürekli değiştirmeye gerek kalmamaktadır.
+Kullanılan sınıflar:
 
-# 
+- `ExternalSmsProvider`
+- `SmsProviderAdapter`
+- `INotification`
 
-# \---
+### Facade
 
-# 
+Facade Pattern, bildirim gönderme sürecini sadeleştirmek için kullanılmıştır.
 
-# \## Kullanılan Tasarım Örüntüleri
+`NotificationFacade` sınıfı sayesinde `Program.cs` içinde e-posta, SMS ve push bildirimlerini tek tek yönetmek yerine daha anlaşılır bir kullanım sağlanmıştır.
 
-# 
+Kullanılan sınıf:
 
-# \### 1. Factory Method
+- `NotificationFacade`
 
-# 
+### Strategy
 
-# Factory Method, bildirim nesnelerinin oluşturulmasını düzenlemek için kullanılmıştır.
+Strategy Pattern, bildirimlerin nasıl gönderileceğini ayrı davranış sınıflarına ayırmak için kullanılmıştır.
 
-# 
+Bu sayede normal gönderim, öncelikli gönderim ve sessiz gönderim gibi davranışlar ayrı sınıflar halinde yönetilmiştir.
 
-# Projede e-posta, SMS ve push bildirimleri için ayrı factory sınıfları oluşturulmuştur. Böylece `NotificationService` sınıfı hangi bildirimin nasıl oluşturulduğunu bilmek zorunda kalmamıştır.
+Kullanılan sınıflar:
 
-# 
+- `INotificationSendStrategy`
+- `NormalSendStrategy`
+- `PrioritySendStrategy`
+- `SilentSendStrategy`
 
-# Kullanılan yapılar:
+Bu yapı Açık/Kapalı Prensibine de örnek oluşturmaktadır. Yeni bir gönderim davranışı eklemek için mevcut servis kodunu değiştirmek yerine yeni bir strategy sınıfı eklemek yeterlidir.
 
-# 
+### Observer
 
-# \- `NotificationFactory`
+Observer Pattern, bildirim gönderildikten sonra otomatik çalışacak işlemleri yönetmek için kullanılmıştır.
 
-# \- `EmailNotificationFactory`
+Bildirim gönderildiğinde loglama ve raporlama işlemleri otomatik olarak tetiklenmektedir.
 
-# \- `SmsNotificationFactory`
+Kullanılan sınıflar:
 
-# \- `PushNotificationFactory`
+- `NotificationEvent`
+- `INotificationObserver`
+- `LogObserver`
+- `ReportObserver`
+- `INotificationSubject`
 
-# 
+## Mimari Diyagram
 
-# \---
+Aşağıdaki diyagram, projenin son halindeki temel sınıf ilişkilerini göstermektedir.
+
+```mermaid
+flowchart TD
+    Program --> NotificationFacade
+    NotificationFacade --> NotificationService
+
+    NotificationService --> NotificationFactory
+    NotificationFactory --> EmailNotificationFactory
+    NotificationFactory --> SmsNotificationFactory
+    NotificationFactory --> PushNotificationFactory
 
-# 
+    EmailNotificationFactory --> EmailNotification
+    SmsNotificationFactory --> SmsProviderAdapter
+    SmsProviderAdapter --> ExternalSmsProvider
+    PushNotificationFactory --> PushNotification
 
-# \### 2. Adapter
+    NotificationService --> INotificationSendStrategy
+    INotificationSendStrategy --> NormalSendStrategy
+    INotificationSendStrategy --> PrioritySendStrategy
+    INotificationSendStrategy --> SilentSendStrategy
 
-# 
+    NotificationService --> INotificationObserver
+    INotificationObserver --> LogObserver
+    INotificationObserver --> ReportObserver
+```
 
-# Adapter Pattern, dışarıdan gelen SMS sağlayıcısını mevcut sisteme uyumlu hale getirmek için kullanılmıştır.
+Detaylı UML diyagramları şu dosyalarda bulunmaktadır:
 
-# 
+- `docs/diagrams/phase1-uml.md`
+- `docs/diagrams/phase2-uml.md`
+- `docs/diagrams/phase3-uml.md`
 
-# `ExternalSmsProvider` sınıfı sistemdeki `INotification` arayüzüne doğrudan uymadığı için `SmsProviderAdapter` sınıfı oluşturulmuştur.
+## Açık/Kapalı Prensibi
 
-# 
+Projede Açık/Kapalı Prensibi özellikle `SilentSendStrategy` sınıfı üzerinden gösterilmiştir.
 
-# Kullanılan yapılar:
+Sisteme yeni bir gönderim davranışı eklemek için mevcut bildirim sınıflarını veya servis yapısını baştan yazmaya gerek kalmamıştır. Yeni davranış ayrı bir strategy sınıfı olarak eklenmiştir.
 
-# 
+Bu durum sistemin yeni davranışlara açık, mevcut çalışan kodu değiştirmeye ise kapalı olduğunu göstermektedir.
 
-# \- `ExternalSmsProvider`
+## Proje Klasör Yapısı
 
-# \- `SmsProviderAdapter`
+```text
+Evrimlesen-Bildirim-Sistemi
+├── README.md
+├── PATTERNS.md
+├── PROBLEMS.md
+├── src/
+│   └── NotificationSystem/
+│       ├── Program.cs
+│       └── NotificationSystem.csproj
+├── docs/
+│   ├── ai-log/
+│   │   ├── phase1.md
+│   │   ├── phase2.md
+│   │   └── phase3.md
+│   └── diagrams/
+│       ├── phase1-uml.md
+│       ├── phase2-uml.md
+│       └── phase3-uml.md
+└── .github/
+    └── workflows/
+        └── ci.yml
+```
 
-# \- `INotification`
+## Nasıl Çalıştırılır?
 
-# 
+Projeyi çalıştırmak için bilgisayarda **.NET 8 SDK** kurulu olmalıdır.
 
-# \---
+Terminal üzerinden proje klasörüne girilir:
 
-# 
+```bash
+cd src/NotificationSystem
+```
 
-# \### 3. Facade
+Ardından proje çalıştırılır:
 
-# 
+```bash
+dotnet run
+```
 
-# Facade Pattern, bildirim gönderme sürecini daha sade hale getirmek için kullanılmıştır.
+Visual Studio üzerinden çalıştırmak için:
 
-# 
+1. `NotificationSystem.sln` dosyası açılır.
+2. `Ctrl + F5` ile proje çalıştırılır.
+3. Konsol ekranında bildirim gönderme çıktıları görülür.
 
-# `NotificationFacade` sınıfı sayesinde `Program.cs` içinde e-posta, SMS ve push bildirimleri tek tek çağrılmak yerine daha sade bir metot üzerinden yönetilmiştir.
+## Örnek Çıktı
 
-# 
+Program çalıştırıldığında e-posta, SMS ve push bildirimleri gönderilir. Ayrıca Strategy ve Observer örüntülerinin çıktıları konsolda görülür.
 
-# Kullanılan yapı:
+```text
+Normal gönderim stratejisi kullanılıyor.
+E-posta bildirimi gönderiliyor...
+E-posta gönderildi.
+[LOG] Bildirim gönderildi.
+[RAPOR] Bildirim rapor sistemine eklendi.
 
-# 
+Öncelikli gönderim stratejisi kullanılıyor.
+Push bildirimi gönderiliyor...
+Push bildirimi gönderildi.
+[LOG] Bildirim gönderildi.
+[RAPOR] Bildirim rapor sistemine eklendi.
+```
 
-# \- `NotificationFacade`
+## Fazlara Göre Gelişim
 
-# 
+### Faz 0
 
-# \---
+Başlangıç kodundaki tasarım problemleri incelenmiştir. Bu analiz `PROBLEMS.md` dosyasına yazılmıştır.
 
-# 
+### Faz 1
 
-# \### 4. Strategy
+Factory Method uygulanarak bildirim nesnelerinin oluşturulması ayrı factory sınıflarına taşınmıştır.
 
-# 
+### Faz 2
 
-# Strategy Pattern, bildirimlerin nasıl gönderileceğini ayrı davranış sınıflarına ayırmak için kullanılmıştır.
+Adapter ve Facade örüntüleri uygulanmıştır. Dış SMS servisi sisteme uyumlu hale getirilmiş ve bildirim gönderme süreci sadeleştirilmiştir.
 
-# 
+### Faz 3
 
-# Bu sayede normal gönderim, öncelikli gönderim ve sessiz gönderim gibi davranışlar ayrı sınıflar halinde tanımlanmıştır.
+Strategy ve Observer örüntüleri uygulanmıştır. Bildirim gönderme davranışları ayrılmış ve bildirim sonrası loglama/raporlama işlemleri otomatik hale getirilmiştir.
 
-# 
+## AI Kullanımı
 
-# Kullanılan yapılar:
+Her fazda AI desteği alınmıştır. AI cevapları doğrudan kopyalanmamış, öneriler incelenmiş ve proje yapısına uygun şekilde uygulanmıştır.
 
-# 
+AI kullanım kayıtları şu dosyalarda tutulmuştur:
 
-# \- `INotificationSendStrategy`
+- `docs/ai-log/phase1.md`
+- `docs/ai-log/phase2.md`
+- `docs/ai-log/phase3.md`
 
-# \- `NormalSendStrategy`
+## GitHub Actions
 
-# \- `PrioritySendStrategy`
+Projeye basit bir GitHub Actions CI pipeline eklenmiştir.
 
-# \- `SilentSendStrategy`
-
-# 
-
-# Bu yapı Açık/Kapalı Prensibine de örnek oluşturmaktadır. Yeni bir gönderim davranışı eklemek için mevcut servis sınıfını değiştirmek yerine yeni bir strategy sınıfı eklenebilir.
-
-# 
-
-# \---
-
-# 
-
-# \### 5. Observer
-
-# 
-
-# Observer Pattern, bildirim gönderildikten sonra otomatik çalışacak işlemleri yönetmek için kullanılmıştır.
-
-# 
-
-# Bildirim gönderildiğinde loglama ve raporlama işlemleri otomatik olarak tetiklenmektedir.
-
-# 
-
-# Kullanılan yapılar:
-
-# 
-
-# \- `NotificationEvent`
-
-# \- `INotificationObserver`
-
-# \- `LogObserver`
-
-# \- `ReportObserver`
-
-# \- `INotificationSubject`
-
-# 
-
-# \---
-
-# 
-
-# \## Mimari Diyagram
-
-# 
-
-# Aşağıdaki diyagram, projenin son mimari yapısını genel olarak göstermektedir.
-
-# 
-
-# ```mermaid
-
-# flowchart TD
-
-# &#x20;   Program --> NotificationFacade
-
-# &#x20;   NotificationFacade --> NotificationService
-
-# 
-
-# &#x20;   NotificationService --> NotificationFactory
-
-# &#x20;   NotificationFactory --> EmailNotificationFactory
-
-# &#x20;   NotificationFactory --> SmsNotificationFactory
-
-# &#x20;   NotificationFactory --> PushNotificationFactory
-
-# 
-
-# &#x20;   EmailNotificationFactory --> EmailNotification
-
-# &#x20;   SmsNotificationFactory --> SmsProviderAdapter
-
-# &#x20;   SmsProviderAdapter --> ExternalSmsProvider
-
-# &#x20;   PushNotificationFactory --> PushNotification
-
-# 
-
-# &#x20;   NotificationService --> INotificationSendStrategy
-
-# &#x20;   INotificationSendStrategy --> NormalSendStrategy
-
-# &#x20;   INotificationSendStrategy --> PrioritySendStrategy
-
-# &#x20;   INotificationSendStrategy --> SilentSendStrategy
-
-# 
-
-# &#x20;   NotificationService --> INotificationObserver
-
-# &#x20;   INotificationObserver --> LogObserver
-
-# &#x20;   INotificationObserver --> ReportObserver
-
-# ```
-
-# 
-
-# Detaylı UML diyagramları için:
-
-# 
-
-# \- `docs/diagrams/phase1-uml.md`
-
-# \- `docs/diagrams/phase2-uml.md`
-
-# \- `docs/diagrams/phase3-uml.md`
-
-# 
-
-# \---
-
-# 
-
-# \## Proje Klasör Yapısı
-
-# 
-
-# ```text
-
-# Evrimlesen-Bildirim-Sistemi
-
-# ├── src
-
-# │   └── NotificationSystem
-
-# │       ├── Program.cs
-
-# │       └── NotificationSystem.csproj
-
-# ├── docs
-
-# │   ├── ai-log
-
-# │   │   ├── phase1.md
-
-# │   │   ├── phase2.md
-
-# │   │   └── phase3.md
-
-# │   └── diagrams
-
-# │       ├── phase1-uml.md
-
-# │       ├── phase2-uml.md
-
-# │       └── phase3-uml.md
-
-# ├── PATTERNS.md
-
-# ├── PROBLEMS.md
-
-# ├── README.md
-
-# └── .gitignore
-
-# ```
-
-# 
-
-# \---
-
-# 
-
-# \## Nasıl Çalıştırılır?
-
-# 
-
-# Projeyi çalıştırmak için bilgisayarda .NET SDK kurulu olmalıdır.
-
-# 
-
-# Terminal veya Visual Studio Developer PowerShell üzerinden proje klasörüne girilir:
-
-# 
-
-# ```bash
-
-# cd src/NotificationSystem
-
-# ```
-
-# 
-
-# Ardından proje çalıştırılır:
-
-# 
-
-# ```bash
-
-# dotnet run
-
-# ```
-
-# 
-
-# Visual Studio üzerinden çalıştırmak için:
-
-# 
-
-# 1\. `NotificationSystem.sln` dosyası açılır.
-
-# 2\. Üst menüden `Start` veya `Ctrl + F5` ile proje çalıştırılır.
-
-# 3\. Konsol ekranında bildirim gönderme çıktıları görülür.
-
-# 
-
-# \---
-
-# 
-
-# \## Örnek Çıktı
-
-# 
-
-# Program çalıştırıldığında e-posta, SMS ve push bildirimleri gönderilir. Ayrıca Strategy ve Observer örüntüleri sayesinde gönderim davranışları ve bildirim sonrası işlemler konsolda görülür.
-
-# 
-
-# Örnek olarak:
-
-# 
-
-# ```text
-
-# Normal gönderim stratejisi kullanılıyor.
-
-# E-posta bildirimi gönderiliyor...
-
-# E-posta gönderildi.
-
-# \[LOG] Bildirim gönderildi.
-
-# \[RAPOR] Bildirim rapor sistemine eklendi.
-
-# 
-
-# Öncelikli gönderim stratejisi kullanılıyor.
-
-# Push bildirimi gönderiliyor...
-
-# Push bildirimi gönderildi.
-
-# \[LOG] Bildirim gönderildi.
-
-# \[RAPOR] Bildirim rapor sistemine eklendi.
-
-# ```
-
-# 
-
-# \---
-
-# 
-
-# \## Açık/Kapalı Prensibi
-
-# 
-
-# Projede Açık/Kapalı Prensibi özellikle Strategy Pattern üzerinden gösterilmiştir.
-
-# 
-
-# `SilentSendStrategy` sınıfı yeni bir gönderim davranışı olarak eklenmiştir. Bu davranış eklenirken mevcut bildirim sınıflarının veya genel servis mantığının baştan yazılmasına gerek kalmamıştır.
-
-# 
-
-# Bu durum sistemin yeni davranışlara açık, fakat mevcut çalışan kodu değiştirmeye kapalı olduğunu göstermektedir.
-
-# 
-
-# \---
-
-# 
-
-# \## Fazlara Göre Gelişim
-
-# 
-
-# \### Faz 0
-
-# 
-
-# Başlangıç kodundaki tasarım problemleri incelendi. `PROBLEMS.md` dosyasında mevcut kodun sorunları ve AI analizi karşılaştırıldı.
-
-# 
-
-# \### Faz 1
-
-# 
-
-# Factory Method uygulanarak bildirim nesnelerinin oluşturulması ayrı factory sınıflarına taşındı.
-
-# 
-
-# \### Faz 2
-
-# 
-
-# Adapter ve Facade örüntüleri uygulandı. Dış SMS servisi sisteme uyumlu hale getirildi ve bildirim gönderme süreci sadeleştirildi.
-
-# 
-
-# \### Faz 3
-
-# 
-
-# Strategy ve Observer örüntüleri uygulandı. Bildirim gönderme davranışları ayrıldı ve bildirim sonrası loglama/raporlama işlemleri otomatik hale getirildi.
-
-# 
-
-# \---
-
-# 
-
-# \## AI Kullanımı
-
-# 
-
-# Her fazda AI desteği alınmış, ancak AI cevapları doğrudan kopyalanmamıştır. AI önerileri incelenmiş, proje ihtiyaçlarına göre sadeleştirilmiş ve öğrenci ödevi seviyesine uygun şekilde uygulanmıştır.
-
-# 
-
-# AI kullanım kayıtları şu dosyalarda tutulmuştur:
-
-# 
-
-# \- `docs/ai-log/phase1.md`
-
-# \- `docs/ai-log/phase2.md`
-
-# \- `docs/ai-log/phase3.md`
-
+`.github/workflows/ci.yml` dosyası ile proje her push veya pull request işleminde otomatik olarak derlenir. Böylece projenin GitHub üzerinde çalışır ve derlenebilir durumda olduğu kontrol edilir.
